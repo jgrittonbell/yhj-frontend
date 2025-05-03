@@ -1,0 +1,27 @@
+# Angular build output
+/dist
+/.angular
+/browser
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+
+# Node dependencies
+/node_modules
+/package-lock.json
+/pnpm-lock.yaml
+/yarn.lock
+
+# Compiled output
+/out-tsc
+/**/*.js
+/**/*.js.map
+
+# Misc
+/.env
+*.log
