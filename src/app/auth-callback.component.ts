@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from './environments/environment';
 
 @Component({
   selector: 'app-auth-callback',
@@ -21,11 +22,11 @@ export class AuthCallbackComponent implements OnInit {
       const code = params['code'];
 
       if (code) {
-        this.http.post<any>('/api/auth/token', { code }).subscribe({
+        const tokenUrl = `${environment.apiBaseUrl}/auth/token`;
+        this.http.post<any>(tokenUrl, { code }).subscribe({
           next: (tokens) => {
             console.log('Tokens received:', tokens);
 
-            // Store tokens in localStorage
             localStorage.setItem('id_token', tokens.id_token);
             localStorage.setItem('access_token', tokens.access_token);
             localStorage.setItem('expires_in', tokens.expires_in);

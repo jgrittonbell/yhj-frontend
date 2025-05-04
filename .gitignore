@@ -2,6 +2,7 @@
 /dist
 /.angular
 /browser
+Angular.zip
 
 # System files
 .DS_Store

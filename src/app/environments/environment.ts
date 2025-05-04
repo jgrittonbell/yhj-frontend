@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  apiBaseUrl: 'https://yhj.grittonbelldev.com/api',
   cognito: {
     clientId: '17maovn490jgjo4sahig56bs9b',
     domain: 'us-east-2qhnriu1dn.auth.us-east-2.amazoncognito.com',
