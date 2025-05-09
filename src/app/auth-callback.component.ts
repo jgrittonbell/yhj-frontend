@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { environment } from './environments/environment';
 
 @Component({
   selector: 'app-auth-callback',
@@ -22,8 +21,7 @@ export class AuthCallbackComponent implements OnInit {
       const code = params['code'];
 
       if (code) {
-        const tokenUrl = `${environment.apiBaseUrl}/auth/token`;
-        this.http.post<any>(tokenUrl, { code }).subscribe({
+        this.http.post<any>('/api/auth/token', { code }).subscribe({
           next: (tokens) => {
             console.log('Tokens received:', tokens);
 
@@ -31,7 +29,10 @@ export class AuthCallbackComponent implements OnInit {
             localStorage.setItem('access_token', tokens.access_token);
             localStorage.setItem('expires_in', tokens.expires_in);
 
-            this.router.navigate(['/dashboard']);
+            //This is a delay to allow for saving the tokens to occur before navigating to the dashboard
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 50);
           },
           error: (err) => {
             console.error('Token exchange failed:', err);
