@@ -8,13 +8,232 @@
     </div>
   </div>
 
-  <div class="mt-4">
-    <!-- Placeholder for meal list -->
-    <div class="card mb-2" *ngFor="let meal of [1, 2, 3]">
-      <div class="card-body">
-        <h5 class="card-title">Meal {{ meal }}</h5>
-        <p class="card-text">Example meal description.</p>
+  <div class="container mt-4">
+    <h2>Add a Meal</h2>
+
+    <form [formGroup]="foodForm" (ngSubmit)="onSubmit()">
+      <!-- Meal Info -->
+      <div class="mb-3">
+        <label for="mealName" class="form-label">Meal Name</label>
+        <input
+          type="text"
+          id="mealName"
+          class="form-control"
+          formControlName="mealName"
+        />
       </div>
-    </div>
+
+      <div class="mb-3">
+        <label for="time" class="form-label">Time</label>
+        <input
+          type="datetime-local"
+          id="timeEaten"
+          class="form-control"
+          formControlName="timeEaten"
+        />
+      </div>
+
+      <hr />
+
+      <!-- Add Food Button -->
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Foods</h4>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="addFood()"
+        >
+          Add Food
+        </button>
+      </div>
+
+      <!-- Food List -->
+      <div formArrayName="foods" class="mt-3">
+        <div
+          class="card mb-3"
+          *ngFor="let food of foods.controls; let i = index"
+          [formGroupName]="i"
+        >
+          <div class="card-body">
+            <!-- Basic Fields -->
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Food Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="foodName"
+                />
+              </div>
+
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Serving Size</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="servingSize"
+                />
+              </div>
+
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Calories</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="calories"
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Protein (g)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="protein"
+                />
+              </div>
+
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Fat (g)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="fat"
+                />
+              </div>
+
+              <div class="col-md-4 mb-2">
+                <label class="form-label">Carbs (g)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  formControlName="carbs"
+                />
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label">Notes</label>
+              <textarea
+                class="form-control"
+                formControlName="notes"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <!-- Toggle for Advanced Fields -->
+            <button
+              type="button"
+              class="btn btn-link p-0 mb-3"
+              (click)="toggleAdvanced(i)"
+            >
+              {{ showAdvanced[i] ? "Hide" : "Show" }} Extra Nutrients
+            </button>
+
+            <div *ngIf="showAdvanced[i]">
+              <div class="row">
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Cholesterol</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="cholesterol"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Sodium</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="sodium"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Fiber</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="fiber"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Sugar</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="sugar"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Added Sugar</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="addedSugar"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Vitamin D</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="vitaminD"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Calcium</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="calcium"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Iron</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="iron"
+                  />
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label class="form-label">Potassium</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="potassium"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="text-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="removeFood(i)"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-end">
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="foodForm.invalid"
+        >
+          Save Meal
+        </button>
+      </div>
+    </form>
   </div>
 </div>
