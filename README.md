@@ -1,4 +1,4 @@
-# YhjFrontend
+# YourHealthJournal - Frontend
 
 This is the front end for the project https://github.com/jgrittonbell/YourHealthJournal.
 
