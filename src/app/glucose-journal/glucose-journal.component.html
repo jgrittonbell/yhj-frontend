@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  <h2>Glucose Journal</h2>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <p>View and enter your glucose readings.</p>
+      <button class="btn btn-primary">Add Reading</button>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <!-- Placeholder for readings -->
+    <div class="card mb-2" *ngFor="let reading of [1, 2, 3]">
+      <div class="card-body">
+        <h5 class="card-title">Reading {{ reading }}</h5>
+        <p class="card-text">Example reading data.</p>
+      </div>
+    </div>
+  </div>
+</div>

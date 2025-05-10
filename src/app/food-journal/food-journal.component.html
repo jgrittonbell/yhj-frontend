@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  <h2>Food Journal</h2>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <p>See your logged meals and can add new ones.</p>
+      <button class="btn btn-primary">Add Meal</button>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <!-- Placeholder for meal list -->
+    <div class="card mb-2" *ngFor="let meal of [1, 2, 3]">
+      <div class="card-body">
+        <h5 class="card-title">Meal {{ meal }}</h5>
+        <p class="card-text">Example meal description.</p>
+      </div>
+    </div>
+  </div>
+</div>
