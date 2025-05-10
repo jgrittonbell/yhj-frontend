@@ -1,3 +1,7 @@
+<div *ngIf="message" class="alert alert-warning">
+  {{ message }}
+</div>
+
 <h1>Welcome to YourHealthJournal</h1>
 <p>
   YourHealthJournal helps you record your meals and monitor your blood glucose
@@ -9,3 +13,5 @@
 <p>Please log in to continue.</p>
 
 <button (click)="login()">Login with Cognito</button>
+<br />
+<button (click)="logout()">Logout</button>
