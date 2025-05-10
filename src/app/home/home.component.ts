@@ -28,14 +28,4 @@ export class HomeComponent implements OnInit {
 
     window.location.href = loginUrl;
   }
-
-  logout() {
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('expires_in');
-
-    const { domain, clientId, redirectUri } = environment.cognito;
-    const logoutUrl = `https://${domain}/logout?client_id=${clientId}&logout_uri=${redirectUri}`;
-    window.location.href = logoutUrl;
-  }
 }

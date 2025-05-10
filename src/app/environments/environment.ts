@@ -6,5 +6,6 @@ export const environment = {
     redirectUri: 'http://localhost:4200/auth-callback',
     responseType: 'code',
     scope: 'openid email',
+    logoutRedirectUri: 'http://localhost:4200',
   },
 };
