@@ -26,6 +26,11 @@ export class FoodJournalComponent implements OnInit {
   showAdvanced: boolean[] = [];
   meals: MealResponse[] = [];
 
+  mealSaved: boolean = false;
+  showForm: boolean = false;
+
+  editingMeal: MealResponse | null = null;
+
   constructor(
     private fb: FormBuilder,
     private mealService: MealService,
@@ -38,7 +43,15 @@ export class FoodJournalComponent implements OnInit {
     });
   }
 
+  get foods(): FormArray {
+    return this.foodForm.get('foods') as FormArray;
+  }
+
   ngOnInit(): void {
+    this.loadMeals();
+  }
+
+  loadMeals(): void {
     const headers = this.authHeaderService.getAuthHeaders();
 
     this.mealService.getAllMeals(headers).subscribe({
@@ -52,8 +65,17 @@ export class FoodJournalComponent implements OnInit {
     });
   }
 
-  get foods(): FormArray {
-    return this.foodForm.get('foods') as FormArray;
+  getTotalCalories(meal: MealResponse): number {
+    return meal.foods.reduce((total, food) => {
+      const calories = food.calories ?? 0;
+      return total + calories;
+    }, 0);
+  }
+
+  startNewMeal(): void {
+    this.mealSaved = false; // Clear success message
+    this.showForm = true;
+    this.editingMeal = null; // Ensure it's a new meal, not an edit
   }
 
   addFood(): void {
@@ -130,14 +152,27 @@ export class FoodJournalComponent implements OnInit {
       this.mealService.saveMeal(mealData, headers).subscribe({
         next: (response) => {
           console.log('Meal saved successfully:', response);
+          this.mealSaved = true;
           this.foodForm.reset();
           this.foods.clear();
           this.showAdvanced = [];
+          this.showForm = false;
+          this.loadMeals();
         },
         error: (err) => {
           console.error('Error saving meal:', err);
         },
       });
     }
+  }
+
+  editMeal(meal: MealResponse): void {
+    console.log('Edit meal triggered:', meal);
+    // TODO: repopulate the form with this meal’s data
+  }
+
+  deleteMeal(mealId: number): void {
+    console.log('Delete meal triggered for ID:', mealId);
+    // TODO: call mealService.deleteMeal(mealId) and refresh list
   }
 }
