@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <!-- Food Journal Header -->
   <div class="mt-4">
-    <h2>Food Journal</h2>
+    <h1>Food Journal</h1>
 
     <!-- Success Message -->
     <div *ngIf="mealSaved" class="alert alert-success mt-3">
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Add Meal Button -->
-    <div class="mt-2">
+    <div class="mt-2" *ngIf="!showForm">
       <button class="btn btn-primary" (click)="startNewMeal()">Add Meal</button>
     </div>
   </div>
@@ -19,6 +19,16 @@
     <h2>Add a Meal</h2>
 
     <form [formGroup]="foodForm" (ngSubmit)="onSubmit()">
+      <!-- Cancel Button -->
+      <div class="d-flex justify-content-end">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm mb-2"
+          (click)="cancelForm()"
+        >
+          Cancel
+        </button>
+      </div>
       <!-- Meal Info -->
       <div class="mb-3">
         <label for="mealName" class="form-label">Meal Name</label>

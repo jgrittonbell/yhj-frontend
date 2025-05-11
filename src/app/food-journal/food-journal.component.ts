@@ -111,6 +111,13 @@ export class FoodJournalComponent implements OnInit {
     this.showAdvanced[index] = !this.showAdvanced[index];
   }
 
+  cancelForm(): void {
+    this.showForm = false;
+    this.editingMeal = null;
+    this.foodForm.reset();
+    this.foods.clear();
+    this.showAdvanced = [];
+  }
   onSubmit(): void {
     if (this.foodForm.valid) {
       const raw: {
