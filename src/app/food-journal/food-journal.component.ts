@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
@@ -11,6 +11,7 @@ import {
 import { AuthHeaderService } from '../auth-header.service';
 import { MealService } from '../services/meal.service';
 import { FoodEntry } from '../interfaces/food-entry';
+import { MealResponse } from '../interfaces/meal-response';
 
 @Component({
   standalone: true,
@@ -19,9 +20,11 @@ import { FoodEntry } from '../interfaces/food-entry';
   templateUrl: './food-journal.component.html',
   styleUrls: ['./food-journal.component.css'],
 })
-export class FoodJournalComponent {
+export class FoodJournalComponent implements OnInit {
   foodForm: FormGroup;
+
   showAdvanced: boolean[] = [];
+  meals: MealResponse[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -32,6 +35,20 @@ export class FoodJournalComponent {
       mealName: ['', Validators.required],
       timeEaten: ['', Validators.required],
       foods: this.fb.array([]),
+    });
+  }
+
+  ngOnInit(): void {
+    const headers = this.authHeaderService.getAuthHeaders();
+
+    this.mealService.getAllMeals(headers).subscribe({
+      next: (meals: MealResponse[]) => {
+        console.log('Meals from API:', meals);
+        this.meals = meals;
+      },
+      error: (err) => {
+        console.error('Failed to fetch meals:', err);
+      },
     });
   }
 
