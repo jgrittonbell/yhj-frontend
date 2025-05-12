@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { NutritionixService } from '../../services/nutritionix.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +10,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
+  constructor(private nutritionixService: NutritionixService) {}
+
   /**
    * Logs the user out of both the frontend app and AWS Cognito.
    * This function clears local/session storage and redirects
@@ -20,6 +22,7 @@ export class NavbarComponent {
     // Clear the stored the Cognito ID token, access token, or user info in localStorage or sessionStorage.
     localStorage.clear();
     sessionStorage.clear();
+    this.nutritionixService.clearCache();
 
     // Step 3: Force the browser to navigate to the logout URL
     window.location.href = '/';

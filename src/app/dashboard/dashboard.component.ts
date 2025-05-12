@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthHeaderService } from '../auth-header.service';
 import { Router, RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartType, ChartDataset, ChartOptions } from 'chart.js';
+import { ChartDataset, ChartOptions } from 'chart.js';
 import { MealService } from '../services/meal.service';
 import { MealResponse } from '../interfaces/meal-response';
 import { GlucoseService } from '../services/glucose.service';

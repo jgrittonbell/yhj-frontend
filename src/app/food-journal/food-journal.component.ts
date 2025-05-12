@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpHeaders } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import {
   FormBuilder,
@@ -13,6 +14,14 @@ import { AuthHeaderService } from '../auth-header.service';
 import { MealService } from '../services/meal.service';
 import { FoodEntry } from '../interfaces/food-entry';
 import { MealResponse } from '../interfaces/meal-response';
+import { NutritionixService } from '../services/nutritionix.service';
+import { NutritionixParsedFood } from '../interfaces/nutritionix-parsed.model';
+import { NutritionixFoodDetail } from '../interfaces/nutritionix-detail.model';
+import { NUTRIENT_MAP } from '../constants/nutrient-map';
+
+type NutritionixSuggestion =
+  | NutritionixParsedFood
+  | { food_name: string; nix_item_id?: string };
 
 @Component({
   standalone: true,
@@ -38,10 +47,15 @@ export class FoodJournalComponent implements OnInit {
   sortColumn: string = 'timeEaten';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  searchTerm: string = '';
+  suggestions: NutritionixSuggestion[] = [];
+  searching: boolean = false;
+
   constructor(
     private fb: FormBuilder,
     private mealService: MealService,
-    private authHeaderService: AuthHeaderService
+    private authHeaderService: AuthHeaderService,
+    private nutritionixService: NutritionixService
   ) {
     this.foodForm = this.fb.group({
       mealName: ['', Validators.required],
@@ -63,6 +77,9 @@ export class FoodJournalComponent implements OnInit {
     this.sortColumn = 'timeEaten';
     this.sortDirection = 'desc';
     this.loadMeals();
+    //this.debugSearch();
+    //this.debugParse();
+    //this.debugGetFoodDetails();
   }
 
   /**
@@ -350,5 +367,135 @@ export class FoodJournalComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+  }
+
+  debugSearch(): void {
+    const headers = this.authHeaderService.getAuthHeaders();
+    this.nutritionixService
+      .searchAllFoods('apple', headers)
+      .subscribe((response) => {
+        console.log('Nutritionix Search Response:', response);
+      });
+  }
+
+  debugParse(): void {
+    const headers = this.authHeaderService.getAuthHeaders();
+    this.nutritionixService
+      .parseNutrientsFromQuery('1 apple', headers)
+      .subscribe((response) => {
+        console.log('Nutritionix Parsed Nutrients Response:', response);
+      });
+  }
+
+  debugGetFoodDetails(): void {
+    const headers = this.authHeaderService.getAuthHeaders();
+    const testId = '5c417c43f7b925f079302de7';
+    this.nutritionixService
+      .getFoodDetails(testId, headers)
+      .subscribe((response) => {
+        console.log('Nutritionix Food Detail Response:', response);
+      });
+  }
+
+  onSearchChange(): void {
+    const headers: HttpHeaders = this.authHeaderService.getAuthHeaders();
+
+    if (this.searchTerm.length > 2) {
+      this.nutritionixService
+        .searchAllFoods(this.searchTerm, headers)
+        .subscribe((response) => {
+          this.suggestions = [...response.common, ...response.branded];
+          this.searching = true;
+        });
+    } else {
+      this.suggestions = [];
+      this.searching = false;
+    }
+  }
+
+  onSearchBlur(): void {
+    // Delay clearing to allow click event to finish
+    setTimeout(() => {
+      this.searching = false;
+    }, 200);
+  }
+
+  selectFood(food: NutritionixSuggestion): void {
+    const headers: HttpHeaders = this.authHeaderService.getAuthHeaders();
+
+    this.searchTerm = food.food_name;
+    this.suggestions = [];
+    this.searching = false;
+
+    if ('nix_item_id' in food && food.nix_item_id) {
+      // Branded food → fetch detail
+      this.nutritionixService
+        .getFoodDetails(food.nix_item_id, headers)
+        .subscribe((detail: NutritionixFoodDetail) => {
+          this.addFoodFromNutritionix(detail);
+        });
+    } else {
+      // Common food → parse
+      this.nutritionixService
+        .parseNutrientsFromQuery(food.food_name, headers)
+        .subscribe((parsed) => {
+          if (parsed.length > 0) {
+            this.addFoodFromNutritionix(parsed[0]);
+          }
+        });
+    }
+  }
+
+  addFoodFromNutritionix(
+    food: NutritionixParsedFood | NutritionixFoodDetail
+  ): void {
+    const controls: { [key: string]: any } = {
+      foodName: food.food_name,
+      servingSize: food.serving_qty ?? 1,
+      notes: food.nf_ingredient_statement ?? '',
+    };
+
+    const fullNutrients = food.full_nutrients ?? [];
+
+    // 1. Populate from full_nutrients using NUTRIENT_MAP
+    for (const nutrient of fullNutrients) {
+      const mapEntry = NUTRIENT_MAP[nutrient.attr_id];
+      if (mapEntry?.key) {
+        controls[mapEntry.key] = nutrient.value;
+      }
+    }
+
+    // 2. Fallbacks from flat fields
+    const FLAT_FIELD_MAP: Record<string, keyof NutritionixParsedFood> = {
+      calories: 'nf_calories',
+      protein: 'nf_protein',
+      fat: 'nf_total_fat',
+      carbs: 'nf_total_carbohydrate',
+      sugar: 'nf_sugars',
+      addedSugar: 'nf_added_sugars',
+      fiber: 'nf_dietary_fiber',
+      sodium: 'nf_sodium',
+      cholesterol: 'nf_cholesterol',
+      potassium: 'nf_potassium',
+      vitaminD: 'nf_vitamin_d_mcg',
+      calcium: 'nf_calcium_mg',
+      iron: 'nf_iron_mg',
+    };
+
+    for (const [formKey, flatKey] of Object.entries(FLAT_FIELD_MAP)) {
+      if (controls[formKey] === undefined && food[flatKey] !== undefined) {
+        controls[formKey] = food[flatKey];
+      }
+    }
+
+    // 3. Guarantee all required keys exist in form group
+    const requiredKeys = Object.keys(FLAT_FIELD_MAP);
+    for (const key of requiredKeys) {
+      if (!(key in controls)) {
+        controls[key] = null;
+      }
+    }
+
+    this.foods.push(this.fb.group(controls));
   }
 }

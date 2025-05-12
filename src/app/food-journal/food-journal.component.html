@@ -262,23 +262,67 @@
         </div>
       </div>
 
-      <div class="mt-3 d-flex justify-content-between">
-        <!-- Add Food Button -->
-        <button
-          type="button"
-          class="btn btn-outline-primary"
-          (click)="addFood()"
-        >
-          Add Food
-        </button>
-        <!-- Save Food Button -->
-        <button
-          type="submit"
-          class="btn btn-success"
-          [disabled]="foodForm.invalid"
-        >
-          Save Meal
-        </button>
+      <div
+        class="mt-3 d-flex flex-wrap align-items-end gap-3 justify-content-between"
+      >
+        <!-- Left: Search Input + Suggestions -->
+        <div class="flex-grow-1 position-relative" style="min-width: 250px">
+          <label for="nutritionixSearch" class="form-label"
+            >Search Nutritionix</label
+          >
+          <input
+            id="nutritionixSearch"
+            type="text"
+            class="form-control"
+            placeholder="Start typing a food name..."
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{ standalone: true }"
+            name="nutritionixSearch"
+            (input)="onSearchChange()"
+            (focus)="searching = true"
+            (blur)="onSearchBlur()"
+          />
+
+          <!-- Typeahead Suggestions -->
+          <ul
+            class="list-group position-absolute w-100 z-3"
+            *ngIf="searching && suggestions.length > 0"
+            style="top: 100%; max-height: 300px; overflow-y: auto"
+          >
+            <li
+              class="list-group-item list-group-item-action"
+              *ngFor="let item of suggestions"
+              (mousedown)="selectFood(item)"
+            >
+              {{ item.food_name }}
+              <span *ngIf="item.nix_item_id" class="text-muted small">
+                (branded)</span
+              >
+            </li>
+          </ul>
+        </div>
+
+        <!-- Middle: Add Food Button -->
+        <div *ngIf="!searching">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="addFood()"
+          >
+            Add Custom Food
+          </button>
+        </div>
+
+        <!-- Right: Save Meal Button -->
+        <div>
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="foodForm.invalid"
+          >
+            Save Meal
+          </button>
+        </div>
       </div>
     </form>
   </div>
