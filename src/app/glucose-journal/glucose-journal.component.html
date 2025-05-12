@@ -1,20 +1,123 @@
 <div class="container mt-4">
   <h2>Glucose Journal</h2>
 
-  <div class="card mt-3">
+  <!-- Success Messages -->
+  <div *ngIf="readingSaved" class="alert alert-success mt-3">
+    Glucose reading added successfully!
+  </div>
+  <div *ngIf="readingUpdated" class="alert alert-success mt-3">
+    Glucose reading updated successfully!
+  </div>
+  <div *ngIf="readingDeleted" class="alert alert-success mt-3">
+    Glucose reading deleted successfully!
+  </div>
+
+  <!-- Add Button -->
+  <button
+    class="btn btn-primary my-3"
+    *ngIf="!showForm"
+    (click)="startNewReading()"
+  >
+    Add Glucose Reading
+  </button>
+
+  <!-- Glucose Form -->
+  <div *ngIf="showForm" class="card mb-4">
     <div class="card-body">
-      <p>View and enter your glucose readings.</p>
-      <button class="btn btn-primary">Add Reading</button>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">
+          {{ editingReading ? "Update Reading" : "Add Glucose Reading" }}
+        </h4>
+        <button class="btn btn-outline-secondary btn-sm" (click)="cancelForm()">
+          Cancel
+        </button>
+      </div>
+
+      <form [formGroup]="glucoseForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="readingValue" class="form-label"
+            >Reading Value <span class="text-danger">*</span></label
+          >
+          <input
+            type="number"
+            id="readingValue"
+            class="form-control"
+            formControlName="readingValue"
+            min="0"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="readingTime" class="form-label"
+            >Reading Time <span class="text-danger">*</span></label
+          >
+          <input
+            type="datetime-local"
+            id="readingTime"
+            class="form-control"
+            formControlName="readingTime"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="notes" class="form-label">Notes</label>
+          <textarea
+            id="notes"
+            class="form-control"
+            rows="2"
+            formControlName="notes"
+          ></textarea>
+        </div>
+
+        <div class="text-end">
+          <button
+            type="submit"
+            class="btn btn-success"
+            [disabled]="glucoseForm.invalid"
+          >
+            {{ editingReading ? "Update Reading" : "Save Reading" }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <div class="mt-4">
-    <!-- Placeholder for readings -->
-    <div class="card mb-2" *ngFor="let reading of [1, 2, 3]">
-      <div class="card-body">
-        <h5 class="card-title">Reading {{ reading }}</h5>
-        <p class="card-text">Example reading data.</p>
-      </div>
-    </div>
+  <!-- Table of Glucose Readings -->
+  <div *ngIf="readings.length > 0" class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Value</th>
+          <th scope="col">Time</th>
+          <th scope="col">Notes</th>
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reading of readings">
+          <td>{{ reading.glucoseLevel }}</td>
+          <td>{{ reading.measurementTime | date : "short" }}</td>
+          <td>{{ reading.notes || "-" }}</td>
+          <td class="text-end">
+            <button
+              class="btn btn-sm btn-outline-primary me-2"
+              (click)="editReading(reading)"
+            >
+              Update
+            </button>
+            <button
+              class="btn btn-sm btn-outline-danger"
+              (click)="deleteReading(reading.id!)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="readings.length === 0 && !showForm" class="text-muted mt-4">
+    No glucose readings logged yet.
   </div>
 </div>
