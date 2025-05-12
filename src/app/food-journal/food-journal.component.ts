@@ -120,7 +120,7 @@ export class FoodJournalComponent implements OnInit {
     this.showAdvanced = [];
   }
   onSubmit(): void {
-    console.log('🔥 FULL form value before submit:', this.foodForm.value);
+    console.log('FULL form value before submit:', this.foodForm.value);
     if (this.foodForm.valid) {
       const raw: {
         mealName: string;
@@ -220,15 +220,28 @@ export class FoodJournalComponent implements OnInit {
         notes: [food.notes ?? null],
       });
 
-      console.log('✅ Added food group to form:', foodGroup.value);
-      console.log('✅ Full rebuilt FormArray:', this.foods.value);
+      console.log('Added food group to form:', foodGroup.value);
+      console.log('Full rebuilt FormArray:', this.foods.value);
       this.foods.push(foodGroup);
       this.showAdvanced.push(true); // show nutrients by default when editing
     });
   }
 
   deleteMeal(mealId: number): void {
-    console.log('Delete meal triggered for ID:', mealId);
-    // TODO: call mealService.deleteMeal(mealId) and refresh list
+    if (!confirm('Are you sure you want to delete this meal?')) {
+      return;
+    }
+
+    const headers = this.authHeaderService.getAuthHeaders();
+
+    this.mealService.deleteMeal(mealId, headers).subscribe({
+      next: () => {
+        console.log(`Meal ${mealId} deleted`);
+        this.loadMeals(); // Refresh list
+      },
+      error: (err) => {
+        console.error(`Failed to delete meal ${mealId}:`, err);
+      },
+    });
   }
 }

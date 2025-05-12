@@ -25,4 +25,8 @@ export class MealService {
   ): Observable<any> {
     return this.http.put(`${this.apiUrl}/${mealId}`, mealData, { headers });
   }
+
+  deleteMeal(mealId: number, headers: HttpHeaders): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${mealId}`, { headers });
+  }
 }
