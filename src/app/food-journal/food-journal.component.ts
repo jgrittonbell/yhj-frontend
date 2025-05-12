@@ -80,6 +80,7 @@ export class FoodJournalComponent implements OnInit {
 
   addFood(): void {
     const foodGroup = this.fb.group({
+      foodId: [null],
       servingSize: [null, Validators.required],
       foodName: [''],
       calories: [''],
@@ -119,6 +120,7 @@ export class FoodJournalComponent implements OnInit {
     this.showAdvanced = [];
   }
   onSubmit(): void {
+    console.log('🔥 FULL form value before submit:', this.foodForm.value);
     if (this.foodForm.valid) {
       const raw: {
         mealName: string;
@@ -128,7 +130,7 @@ export class FoodJournalComponent implements OnInit {
 
       const foods: FoodEntry[] = raw.foods.map(
         (food: any): FoodEntry => ({
-          // foodId intentionally omitted
+          foodId: food.foodId ?? null,
           servingSize: food.servingSize,
           foodName: food.foodName ?? null,
           calories: food.calories ?? null,
@@ -156,26 +158,73 @@ export class FoodJournalComponent implements OnInit {
 
       const headers = this.authHeaderService.getAuthHeaders();
 
-      this.mealService.saveMeal(mealData, headers).subscribe({
+      const request$ = this.editingMeal
+        ? this.mealService.updateMeal(this.editingMeal.id, mealData, headers)
+        : this.mealService.saveMeal(mealData, headers);
+
+      request$.subscribe({
         next: (response) => {
-          console.log('Meal saved successfully:', response);
+          console.log(
+            `${this.editingMeal ? 'Updated' : 'Saved'} meal:`,
+            response
+          );
           this.mealSaved = true;
           this.foodForm.reset();
           this.foods.clear();
           this.showAdvanced = [];
           this.showForm = false;
+          this.editingMeal = null;
           this.loadMeals();
+
+          setTimeout(() => {
+            this.mealSaved = false;
+          }, 4000);
         },
         error: (err) => {
-          console.error('Error saving meal:', err);
+          console.error('Error submitting meal:', err);
         },
       });
     }
   }
 
   editMeal(meal: MealResponse): void {
-    console.log('Edit meal triggered:', meal);
-    // TODO: repopulate the form with this meal’s data
+    this.showForm = true;
+    this.editingMeal = meal;
+
+    this.foodForm.patchValue({
+      mealName: meal.mealName,
+      timeEaten: meal.timeEaten,
+    });
+
+    this.foods.clear();
+    this.showAdvanced = [];
+
+    meal.foods.forEach((food) => {
+      const foodGroup = this.fb.group({
+        foodId: [food.foodId ?? null],
+        servingSize: [food.servingSize, Validators.required],
+        foodName: [food.foodName ?? ''],
+        calories: [food.calories ?? null],
+        protein: [food.protein ?? null],
+        fat: [food.fat ?? null],
+        carbs: [food.carbs ?? null],
+        cholesterol: [food.cholesterol ?? null],
+        sodium: [food.sodium ?? null],
+        fiber: [food.fiber ?? null],
+        sugar: [food.sugar ?? null],
+        addedSugar: [food.addedSugar ?? null],
+        vitaminD: [food.vitaminD ?? null],
+        calcium: [food.calcium ?? null],
+        iron: [food.iron ?? null],
+        potassium: [food.potassium ?? null],
+        notes: [food.notes ?? null],
+      });
+
+      console.log('✅ Added food group to form:', foodGroup.value);
+      console.log('✅ Full rebuilt FormArray:', this.foods.value);
+      this.foods.push(foodGroup);
+      this.showAdvanced.push(true); // show nutrients by default when editing
+    });
   }
 
   deleteMeal(mealId: number): void {

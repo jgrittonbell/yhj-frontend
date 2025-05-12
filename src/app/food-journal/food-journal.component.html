@@ -16,7 +16,8 @@
 
   <!-- Add Meals Form -->
   <div class="container mt-4" *ngIf="showForm">
-    <h2>Add a Meal</h2>
+    <h2 *ngIf="!editingMeal">Add a Meal</h2>
+    <h2 *ngIf="editingMeal">Update {{ editingMeal.mealName }}</h2>
 
     <form [formGroup]="foodForm" (ngSubmit)="onSubmit()">
       <!-- Cancel Button -->
@@ -29,6 +30,9 @@
           Cancel
         </button>
       </div>
+
+      <!-- FoodID Hidden from view -->
+      <!-- <input type="hidden" formControlName="foodId" /> -->
       <!-- Meal Info -->
       <div class="mb-3">
         <label for="mealName" class="form-label">Meal Name</label>
@@ -218,6 +222,7 @@
               </div>
             </div>
 
+            <!-- Remove Food Button -->
             <div class="text-end">
               <button
                 type="button"

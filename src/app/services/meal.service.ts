@@ -17,4 +17,12 @@ export class MealService {
   getAllMeals(headers: HttpHeaders): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, { headers });
   }
+
+  updateMeal(
+    mealId: number,
+    mealData: any,
+    headers: HttpHeaders
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${mealId}`, mealData, { headers });
+  }
 }
