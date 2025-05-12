@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
   FormBuilder,
+  FormsModule,
   FormArray,
   FormGroup,
   ReactiveFormsModule,
@@ -16,7 +17,7 @@ import { MealResponse } from '../interfaces/meal-response';
 @Component({
   standalone: true,
   selector: 'app-food-journal',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './food-journal.component.html',
   styleUrls: ['./food-journal.component.css'],
 })
@@ -32,6 +33,10 @@ export class FoodJournalComponent implements OnInit {
   showForm: boolean = false;
 
   editingMeal: MealResponse | null = null;
+
+  filterText: string = '';
+  sortColumn: string = 'timeEaten';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +60,8 @@ export class FoodJournalComponent implements OnInit {
    */
   ngOnInit(): void {
     this.mealDeleted = false;
+    this.sortColumn = 'timeEaten';
+    this.sortDirection = 'desc';
     this.loadMeals();
   }
 
@@ -305,5 +312,43 @@ export class FoodJournalComponent implements OnInit {
         console.error(`Failed to delete meal ${mealId}:`, err);
       },
     });
+  }
+
+  get sortedMeals(): MealResponse[] {
+    const filtered = this.filterText.trim()
+      ? this.meals.filter(
+          (meal) =>
+            meal.mealName
+              .toLowerCase()
+              .includes(this.filterText.toLowerCase()) ||
+            meal.timeEaten
+              .toLowerCase()
+              .includes(this.filterText.toLowerCase()) ||
+            meal.foods.some((f) =>
+              f.foodName?.toLowerCase().includes(this.filterText.toLowerCase())
+            )
+        )
+      : this.meals;
+
+    return [...filtered].sort((a, b) => {
+      const valA = (a as any)[this.sortColumn];
+      const valB = (b as any)[this.sortColumn];
+
+      return this.sortDirection === 'asc'
+        ? valA > valB
+          ? 1
+          : -1
+        : valA < valB
+        ? 1
+        : -1;
+    });
+  }
+  setSort(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
   }
 }

@@ -291,19 +291,40 @@
       No meals logged yet.
     </div>
 
+    <!-- Filter Input -->
+    <div class="mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Filter by meal name, food name, or time"
+        [(ngModel)]="filterText"
+      />
+    </div>
+
+    <!-- Meals Table -->
     <div *ngIf="meals.length > 0" class="table-responsive">
       <table class="table table-striped table-bordered align-middle">
         <thead class="table-light">
           <tr>
-            <th>Meal Name</th>
-            <th>Time Eaten</th>
+            <th (click)="setSort('mealName')" style="cursor: pointer">
+              Meal Name
+              <span *ngIf="sortColumn === 'mealName'">{{
+                sortDirection === "asc" ? "↑" : "↓"
+              }}</span>
+            </th>
+            <th (click)="setSort('timeEaten')" style="cursor: pointer">
+              Time
+              <span *ngIf="sortColumn === 'timeEaten'">{{
+                sortDirection === "asc" ? "↑" : "↓"
+              }}</span>
+            </th>
             <th>Foods</th>
             <th>Total Calories</th>
             <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let meal of meals">
+          <tr *ngFor="let meal of sortedMeals">
             <td>{{ meal.mealName }}</td>
             <td>{{ meal.timeEaten | date : "short" }}</td>
             <td>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
+  FormsModule,
   FormGroup,
   Validators,
   ReactiveFormsModule,
@@ -14,7 +15,7 @@ import { AuthHeaderService } from '../auth-header.service';
 @Component({
   standalone: true,
   selector: 'app-glucose-journal',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './glucose-journal.component.html',
   styleUrls: ['./glucose-journal.component.css'],
 })
@@ -27,6 +28,11 @@ export class GlucoseJournalComponent implements OnInit {
   readingDeleted = false;
   showForm = false;
   editingReading: GlucoseReading | null = null;
+
+  filterText: string = '';
+
+  sortColumn: string = 'measurementTime';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   constructor(
     private fb: FormBuilder,
@@ -41,6 +47,8 @@ export class GlucoseJournalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sortColumn = 'measurementTime';
+    this.sortDirection = 'desc';
     this.loadReadings();
   }
 
@@ -126,5 +134,53 @@ export class GlucoseJournalComponent implements OnInit {
       },
       error: (err) => console.error('Failed to delete reading:', err),
     });
+  }
+
+  get filteredReadings(): GlucoseReading[] {
+    if (!this.filterText.trim()) {
+      return this.readings;
+    }
+
+    const search = this.filterText.toLowerCase();
+
+    return this.readings.filter(
+      (reading) =>
+        reading.notes?.toLowerCase().includes(search) ||
+        reading.glucoseLevel.toString().includes(search) ||
+        reading.measurementTime.toLowerCase().includes(search)
+    );
+  }
+
+  get displayedReadings(): GlucoseReading[] {
+    const filtered = this.filterText.trim()
+      ? this.readings.filter(
+          (r) =>
+            r.notes?.toLowerCase().includes(this.filterText.toLowerCase()) ||
+            r.glucoseLevel.toString().includes(this.filterText) ||
+            r.measurementTime
+              .toLowerCase()
+              .includes(this.filterText.toLowerCase())
+        )
+      : this.readings;
+
+    return [...filtered].sort((a, b) => {
+      const valA = (a as any)[this.sortColumn];
+      const valB = (b as any)[this.sortColumn];
+
+      if (this.sortDirection === 'asc') {
+        return valA > valB ? 1 : valA < valB ? -1 : 0;
+      } else {
+        return valA < valB ? 1 : valA > valB ? -1 : 0;
+      }
+    });
+  }
+
+  setSort(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
   }
 }
