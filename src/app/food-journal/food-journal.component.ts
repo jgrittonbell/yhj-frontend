@@ -27,6 +27,8 @@ export class FoodJournalComponent implements OnInit {
   meals: MealResponse[] = [];
 
   mealSaved: boolean = false;
+  mealUpdated: boolean = false;
+  mealDeleted: boolean = false;
   showForm: boolean = false;
 
   editingMeal: MealResponse | null = null;
@@ -48,6 +50,7 @@ export class FoodJournalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.mealDeleted = false;
     this.loadMeals();
   }
 
@@ -121,6 +124,9 @@ export class FoodJournalComponent implements OnInit {
   }
   onSubmit(): void {
     console.log('FULL form value before submit:', this.foodForm.value);
+    this.mealSaved = false;
+    this.mealUpdated = false;
+
     if (this.foodForm.valid) {
       const raw: {
         mealName: string;
@@ -168,12 +174,19 @@ export class FoodJournalComponent implements OnInit {
             `${this.editingMeal ? 'Updated' : 'Saved'} meal:`,
             response
           );
-          this.mealSaved = true;
+
           this.foodForm.reset();
           this.foods.clear();
           this.showAdvanced = [];
           this.showForm = false;
           this.editingMeal = null;
+
+          if (this.editingMeal) {
+            this.mealUpdated = true;
+          } else {
+            this.mealSaved = true;
+          }
+
           this.loadMeals();
 
           setTimeout(() => {
@@ -237,6 +250,7 @@ export class FoodJournalComponent implements OnInit {
     this.mealService.deleteMeal(mealId, headers).subscribe({
       next: () => {
         console.log(`Meal ${mealId} deleted`);
+        this.mealDeleted = true;
         this.loadMeals(); // Refresh list
       },
       error: (err) => {

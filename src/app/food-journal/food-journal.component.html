@@ -8,6 +8,16 @@
       Meal added successfully!
     </div>
 
+    <!-- Meal updated -->
+    <div *ngIf="mealUpdated" class="alert alert-success mt-3">
+      Meal updated successfully!
+    </div>
+
+    <!-- Meal deleted -->
+    <div *ngIf="mealDeleted" class="alert alert-success mt-3">
+      Meal deleted successfully!
+    </div>
+
     <!-- Add Meal Button -->
     <div class="mt-2" *ngIf="!showForm">
       <button class="btn btn-primary" (click)="startNewMeal()">Add Meal</button>
