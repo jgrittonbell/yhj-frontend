@@ -49,11 +49,18 @@ export class FoodJournalComponent implements OnInit {
     return this.foodForm.get('foods') as FormArray;
   }
 
+  /**
+   * Lifecycle hook that runs once after component initialization.
+   * Used to load all meals and clear stale delete messages.
+   */
   ngOnInit(): void {
     this.mealDeleted = false;
     this.loadMeals();
   }
 
+  /**
+   * Fetches all meals from the API for display in the journal.
+   */
   loadMeals(): void {
     const headers = this.authHeaderService.getAuthHeaders();
 
@@ -68,6 +75,12 @@ export class FoodJournalComponent implements OnInit {
     });
   }
 
+  /**
+   * Calculates the total calories for a given meal based on its foods.
+   *
+   * @param meal The meal whose calories should be summed.
+   * @returns The total calorie count for the meal.
+   */
   getTotalCalories(meal: MealResponse): number {
     return meal.foods.reduce((total, food) => {
       const calories = food.calories ?? 0;
@@ -75,12 +88,19 @@ export class FoodJournalComponent implements OnInit {
     }, 0);
   }
 
+  /**
+   * Prepares the form for creating a new meal (not editing).
+   * Resets success flags and form state.
+   */
   startNewMeal(): void {
     this.mealSaved = false; // Clear success message
     this.showForm = true;
     this.editingMeal = null; // Ensure it's a new meal, not an edit
   }
 
+  /**
+   * Adds a new food item form group to the foods FormArray.
+   */
   addFood(): void {
     const foodGroup = this.fb.group({
       foodId: [null],
@@ -106,15 +126,28 @@ export class FoodJournalComponent implements OnInit {
     this.showAdvanced.push(false); // sync toggle array
   }
 
+  /**
+   * Removes a food item from the FormArray and advanced toggle list.
+   *
+   * @param index The index of the food item to remove.
+   */
   removeFood(index: number): void {
     this.foods.removeAt(index);
     this.showAdvanced.splice(index, 1); // sync toggle array
   }
 
+  /**
+   * Toggles the visibility of advanced nutrient inputs for a food entry.
+   *
+   * @param index The index of the food in the form array.
+   */
   toggleAdvanced(index: number): void {
     this.showAdvanced[index] = !this.showAdvanced[index];
   }
 
+  /**
+   * Cancels the form entry process and resets the form state.
+   */
   cancelForm(): void {
     this.showForm = false;
     this.editingMeal = null;
@@ -122,6 +155,11 @@ export class FoodJournalComponent implements OnInit {
     this.foods.clear();
     this.showAdvanced = [];
   }
+
+  /**
+   * Handles submission of the form for creating or updating a meal.
+   * Validates data, sends the request, and shows confirmation messages.
+   */
   onSubmit(): void {
     console.log('FULL form value before submit:', this.foodForm.value);
     this.mealSaved = false;
@@ -200,6 +238,11 @@ export class FoodJournalComponent implements OnInit {
     }
   }
 
+  /**
+   * Loads a meal into the form for editing.
+   *
+   * @param meal The meal object to be edited.
+   */
   editMeal(meal: MealResponse): void {
     this.showForm = true;
     this.editingMeal = meal;
@@ -240,6 +283,11 @@ export class FoodJournalComponent implements OnInit {
     });
   }
 
+  /**
+   * Deletes a meal by its ID after confirmation.
+   *
+   * @param mealId The ID of the meal to delete.
+   */
   deleteMeal(mealId: number): void {
     if (!confirm('Are you sure you want to delete this meal?')) {
       return;
