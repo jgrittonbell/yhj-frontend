@@ -1,0 +1,125 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Data Insights</h2>
+
+  <!-- Food Insights Card -->
+  <div class="card mb-4 shadow">
+    <div class="card-header bg-primary text-white">Food Insights</div>
+    <div class="card-body">
+      <p class="mb-4">
+        The chart below shows the average daily macronutrient breakdown (Carbs,
+        Protein, and Fat) for the selected month.
+      </p>
+
+      <div class="row">
+        <!-- Pie Chart: Macro Breakdown -->
+        <div
+          class="col-md-6 d-flex flex-column justify-content-center align-items-center"
+        >
+          <h6>Average Daily Macro Breakdown (Last 30 Days)</h6>
+          <div style="width: 100%; max-width: 400px; height: 300px">
+            <canvas
+              baseChart
+              [data]="macroChartData"
+              [options]="macroChartOptions"
+              [type]="'pie'"
+              [plugins]="[dataLabelPlugin]"
+            >
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Bar Chart: Average Daily Calories -->
+        <div
+          class="col-md-6 d-flex flex-column justify-content-center align-items-center"
+        >
+          <h6>Average Daily Calories (Last 30 Days)</h6>
+          <div style="width: 100%; max-width: 300px; height: 300px">
+            <canvas
+              baseChart
+              [data]="calorieChartData"
+              [options]="calorieChartOptions"
+              [type]="'bar'"
+            >
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glucose Insights Card (Placeholder) -->
+  <div class="card shadow mb-4">
+    <div class="card-header bg-success text-white">Glucose Insights</div>
+    <div class="card-body">
+      <p class="card-text">
+        Charts for glucose trends and in-range stats will be shown here.
+      </p>
+      <!-- Additional charts will be added here -->
+      <!-- Target Range Inputs -->
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label for="targetLow" class="form-label">Target Low</label>
+          <input
+            id="targetLow"
+            type="number"
+            class="form-control"
+            [(ngModel)]="targetLow"
+          />
+        </div>
+        <div class="col-md-3">
+          <label for="targetHigh" class="form-label">Target High</label>
+          <input
+            id="targetHigh"
+            type="number"
+            class="form-control"
+            [(ngModel)]="targetHigh"
+          />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-primary w-100" (click)="loadGlucoseData()">
+            Apply Target Range
+          </button>
+        </div>
+      </div>
+
+      <!-- Time Range Selector -->
+      <div class="btn-group mb-3" role="group" aria-label="Select Date Range">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          [class.active]="glucoseRangeDays === 30"
+          (click)="glucoseRangeDays = 30; loadGlucoseData()"
+        >
+          30 Days
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          [class.active]="glucoseRangeDays === 60"
+          (click)="glucoseRangeDays = 60; loadGlucoseData()"
+        >
+          60 Days
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          [class.active]="glucoseRangeDays === 90"
+          (click)="glucoseRangeDays = 90; loadGlucoseData()"
+        >
+          90 Days
+        </button>
+      </div>
+
+      <!-- Glucose % Time in Range Bar Chart -->
+      <div style="width: 100%; max-width: 500px">
+        <canvas
+          baseChart
+          [data]="glucoseRangeChartData"
+          [options]="glucoseRangeOptions"
+          [type]="'bar'"
+        >
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>

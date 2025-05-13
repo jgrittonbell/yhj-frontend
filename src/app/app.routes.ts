@@ -4,6 +4,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthCallbackComponent } from './auth-callback.component';
 import { FoodJournalComponent } from './food-journal/food-journal.component';
 import { GlucoseJournalComponent } from './glucose-journal/glucose-journal.component';
+import { DataInsightsComponent } from './data-insights/data-insights.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -11,5 +13,7 @@ export const routes: Routes = [
   { path: 'food-journal', component: FoodJournalComponent },
   { path: 'glucose-journal', component: GlucoseJournalComponent },
   { path: 'auth-callback', component: AuthCallbackComponent },
+  { path: 'insights', component: DataInsightsComponent },
+  { path: 'profile', component: ProfileComponent },
   { path: '**', redirectTo: '' },
 ];
