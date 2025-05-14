@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { AuthService } from './services/auth.service'; // Adjust the path as needed
 
 @Component({
   selector: 'app-auth-callback',
@@ -13,7 +14,8 @@ export class AuthCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -32,10 +34,14 @@ export class AuthCallbackComponent implements OnInit {
           localStorage.setItem('id_token', tokens.id_token);
           localStorage.setItem('access_token', tokens.access_token);
 
-          // Optional: Convert expires_in to absolute expiration time
+          // Convert expires_in to absolute timestamp and store it
           const expiresAt = Date.now() + tokens.expires_in * 1000;
           localStorage.setItem('expires_at', expiresAt.toString());
 
+          // Start session expiration timers
+          this.authService.startTokenTimers();
+
+          // Navigate to dashboard
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {

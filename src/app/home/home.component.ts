@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { environment } from '../environments/environment';
 import { RouterModule } from '@angular/router';
 import { AuthHeaderService } from '../auth-header.service';
 import { UserProfileService } from '../services/user-profile.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { NutritionixService } from '../services/nutritionix.service';
 
 @Component({
@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit {
     private authHeaderService: AuthHeaderService,
     private userProfileService: UserProfileService,
     private router: Router,
+    private authService: AuthService,
     private nutritionixService: NutritionixService
   ) {}
 
@@ -51,23 +52,17 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  login() {
-    const { domain, clientId, redirectUri, responseType, scope } =
-      environment.cognito;
-
-    const loginUrl = `https://${domain}/login?client_id=${clientId}&response_type=${responseType}&scope=${scope}&redirect_uri=${redirectUri}`;
-
-    window.location.href = loginUrl;
+  /**
+   * Redirects user to AWS Cognito login screen.
+   */
+  login(): void {
+    this.authService.login();
   }
 
+  /**
+   * Logs out the user using the centralized AuthService.
+   */
   logout(): void {
-    // Remove any locally stored tokens or session data.
-    // Clear the stored the Cognito ID token, access token, or user info in localStorage or sessionStorage.
-    localStorage.clear();
-    sessionStorage.clear();
-    this.nutritionixService.clearCache();
-
-    // Step 3: Force the browser to navigate to the logout URL
-    window.location.href = '/';
+    this.authService.logout();
   }
 }
