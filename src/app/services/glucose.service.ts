@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { GlucoseReading } from '../interfaces/glucose-reading';
 import { Observable } from 'rxjs';
 
@@ -13,19 +13,17 @@ export class GlucoseService {
 
   /**
    * Fetch all glucose readings for the authenticated user.
+   * Authorization handled by HTTP interceptor.
    */
-  getAllReadings(headers: HttpHeaders): Observable<GlucoseReading[]> {
-    return this.http.get<GlucoseReading[]>(this.apiUrl, { headers });
+  getAllReadings(): Observable<GlucoseReading[]> {
+    return this.http.get<GlucoseReading[]>(this.apiUrl);
   }
 
   /**
    * Create a new glucose reading.
    */
-  saveReading(
-    reading: GlucoseReading,
-    headers: HttpHeaders
-  ): Observable<GlucoseReading> {
-    return this.http.post<GlucoseReading>(this.apiUrl, reading, { headers });
+  saveReading(reading: GlucoseReading): Observable<GlucoseReading> {
+    return this.http.post<GlucoseReading>(this.apiUrl, reading);
   }
 
   /**
@@ -33,18 +31,15 @@ export class GlucoseService {
    */
   updateReading(
     id: number,
-    reading: GlucoseReading,
-    headers: HttpHeaders
+    reading: GlucoseReading
   ): Observable<GlucoseReading> {
-    return this.http.put<GlucoseReading>(`${this.apiUrl}/${id}`, reading, {
-      headers,
-    });
+    return this.http.put<GlucoseReading>(`${this.apiUrl}/${id}`, reading);
   }
 
   /**
    * Delete a glucose reading by ID.
    */
-  deleteReading(id: number, headers: HttpHeaders): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
+  deleteReading(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

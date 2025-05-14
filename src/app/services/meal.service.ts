@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,23 +10,32 @@ export class MealService {
 
   constructor(private http: HttpClient) {}
 
-  saveMeal(mealData: any, headers: HttpHeaders): Observable<any> {
-    return this.http.post(this.apiUrl, mealData, { headers });
+  /**
+   * Saves a new meal entry.
+   * Authorization header is automatically added by the HTTP interceptor.
+   */
+  saveMeal(mealData: any): Observable<any> {
+    return this.http.post(this.apiUrl, mealData);
   }
 
-  getAllMeals(headers: HttpHeaders): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, { headers });
+  /**
+   * Fetches all meals for the authenticated user.
+   */
+  getAllMeals(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
   }
 
-  updateMeal(
-    mealId: number,
-    mealData: any,
-    headers: HttpHeaders
-  ): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${mealId}`, mealData, { headers });
+  /**
+   * Updates a specific meal by ID.
+   */
+  updateMeal(mealId: number, mealData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${mealId}`, mealData);
   }
 
-  deleteMeal(mealId: number, headers: HttpHeaders): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${mealId}`, { headers });
+  /**
+   * Deletes a specific meal by ID.
+   */
+  deleteMeal(mealId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${mealId}`);
   }
 }

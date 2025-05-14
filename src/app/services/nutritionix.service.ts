@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { NutritionixSearchResponse } from '../interfaces/nutritionix.model';
 import { NutritionixNutrientsResponse } from '../interfaces/nutritionix-parsed.model';
 import { NutritionixFoodDetail } from '../interfaces/nutritionix-detail.model';
-import { of } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +15,13 @@ export class NutritionixService {
 
   constructor(private http: HttpClient) {}
 
-  searchAllFoods(
-    query: string,
-    headers: HttpHeaders
-  ): Observable<NutritionixSearchResponse> {
+  /**
+   * Searches Nutritionix for all food types by query, with caching.
+   *
+   * @param query - The user-entered search string.
+   * @returns An observable containing the search response.
+   */
+  searchAllFoods(query: string): Observable<NutritionixSearchResponse> {
     const normalizedQuery = query.trim().toLowerCase();
 
     if (this.searchCache.has(normalizedQuery)) {
@@ -28,47 +30,64 @@ export class NutritionixService {
 
     return this.http
       .get<NutritionixSearchResponse>(
-        `${this.apiUrl}?q=${encodeURIComponent(normalizedQuery)}`,
-        { headers }
+        `${this.apiUrl}?q=${encodeURIComponent(normalizedQuery)}`
       )
       .pipe(tap((response) => this.searchCache.set(normalizedQuery, response)));
   }
 
-  searchCommonFoods(query: string, headers: HttpHeaders): Observable<any> {
+  /**
+   * Searches Nutritionix for common food items by query.
+   *
+   * @param query - The user-entered search string.
+   * @returns An observable containing common food matches.
+   */
+  searchCommonFoods(query: string): Observable<any> {
     return this.http.get<any>(
-      `${this.apiUrl}/common?q=${encodeURIComponent(query)}`,
-      { headers }
+      `${this.apiUrl}/common?q=${encodeURIComponent(query)}`
     );
   }
 
-  searchBrandedFoods(query: string, headers: HttpHeaders): Observable<any> {
+  /**
+   * Searches Nutritionix for branded food items by query.
+   *
+   * @param query - The user-entered search string.
+   * @returns An observable containing branded food matches.
+   */
+  searchBrandedFoods(query: string): Observable<any> {
     return this.http.get<any>(
-      `${this.apiUrl}/branded?q=${encodeURIComponent(query)}`,
-      { headers }
+      `${this.apiUrl}/branded?q=${encodeURIComponent(query)}`
     );
   }
 
-  getFoodDetails(
-    nixItemId: string,
-    headers: HttpHeaders
-  ): Observable<NutritionixFoodDetail> {
-    return this.http.get<NutritionixFoodDetail>(`${this.apiUrl}/${nixItemId}`, {
-      headers,
-    });
+  /**
+   * Retrieves detailed Nutritionix food data by item ID.
+   *
+   * @param nixItemId - The unique Nutritionix item ID.
+   * @returns An observable containing food detail information.
+   */
+  getFoodDetails(nixItemId: string): Observable<NutritionixFoodDetail> {
+    return this.http.get<NutritionixFoodDetail>(`${this.apiUrl}/${nixItemId}`);
   }
 
+  /**
+   * Parses a natural language food query to extract nutrient data.
+   *
+   * @param query - The natural language food string.
+   * @returns An observable containing parsed nutrient data.
+   */
   parseNutrientsFromQuery(
-    query: string,
-    headers: HttpHeaders
+    query: string
   ): Observable<NutritionixNutrientsResponse> {
     const body = { query };
     return this.http.post<NutritionixNutrientsResponse>(
       `${this.apiUrl}/nutrients`,
-      body,
-      { headers }
+      body
     );
   }
 
+  /**
+   * Clears the in-memory cache for all food searches.
+   */
   clearCache(): void {
     this.searchCache.clear();
   }

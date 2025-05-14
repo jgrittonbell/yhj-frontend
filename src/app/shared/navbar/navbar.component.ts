@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service'; // <-- NEW
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service'; // <-- NEW
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
-  constructor(private authService: AuthService) {} // <-- Inject AuthService
+  constructor(private authService: AuthService) {}
 
   /**
    * Logs the user out using the centralized AuthService,

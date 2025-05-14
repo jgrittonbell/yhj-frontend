@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpHeaders } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import {
   FormBuilder,
@@ -10,7 +9,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthHeaderService } from '../auth-header.service';
 import { MealService } from '../services/meal.service';
 import { FoodEntry } from '../interfaces/food-entry';
 import { MealResponse } from '../interfaces/meal-response';
@@ -54,7 +52,6 @@ export class FoodJournalComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private mealService: MealService,
-    private authHeaderService: AuthHeaderService,
     private nutritionixService: NutritionixService
   ) {
     this.foodForm = this.fb.group({
@@ -86,9 +83,7 @@ export class FoodJournalComponent implements OnInit {
    * Fetches all meals from the API for display in the journal.
    */
   loadMeals(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-
-    this.mealService.getAllMeals(headers).subscribe({
+    this.mealService.getAllMeals().subscribe({
       next: (meals: MealResponse[]) => {
         console.log('Meals from API:', meals);
         this.meals = meals;
@@ -224,11 +219,9 @@ export class FoodJournalComponent implements OnInit {
         foods: foods,
       };
 
-      const headers = this.authHeaderService.getAuthHeaders();
-
       const request$ = this.editingMeal
-        ? this.mealService.updateMeal(this.editingMeal.id, mealData, headers)
-        : this.mealService.saveMeal(mealData, headers);
+        ? this.mealService.updateMeal(this.editingMeal.id, mealData)
+        : this.mealService.saveMeal(mealData);
 
       request$.subscribe({
         next: (response) => {
@@ -317,9 +310,7 @@ export class FoodJournalComponent implements OnInit {
       return;
     }
 
-    const headers = this.authHeaderService.getAuthHeaders();
-
-    this.mealService.deleteMeal(mealId, headers).subscribe({
+    this.mealService.deleteMeal(mealId).subscribe({
       next: () => {
         console.log(`Meal ${mealId} deleted`);
         this.mealDeleted = true;
@@ -370,39 +361,30 @@ export class FoodJournalComponent implements OnInit {
   }
 
   debugSearch(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.nutritionixService
-      .searchAllFoods('apple', headers)
-      .subscribe((response) => {
-        console.log('Nutritionix Search Response:', response);
-      });
+    this.nutritionixService.searchAllFoods('apple').subscribe((response) => {
+      console.log('Nutritionix Search Response:', response);
+    });
   }
 
   debugParse(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
     this.nutritionixService
-      .parseNutrientsFromQuery('1 apple', headers)
+      .parseNutrientsFromQuery('1 apple')
       .subscribe((response) => {
         console.log('Nutritionix Parsed Nutrients Response:', response);
       });
   }
 
   debugGetFoodDetails(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
     const testId = '5c417c43f7b925f079302de7';
-    this.nutritionixService
-      .getFoodDetails(testId, headers)
-      .subscribe((response) => {
-        console.log('Nutritionix Food Detail Response:', response);
-      });
+    this.nutritionixService.getFoodDetails(testId).subscribe((response) => {
+      console.log('Nutritionix Food Detail Response:', response);
+    });
   }
 
   onSearchChange(): void {
-    const headers: HttpHeaders = this.authHeaderService.getAuthHeaders();
-
     if (this.searchTerm.length > 2) {
       this.nutritionixService
-        .searchAllFoods(this.searchTerm, headers)
+        .searchAllFoods(this.searchTerm)
         .subscribe((response) => {
           this.suggestions = [...response.common, ...response.branded];
           this.searching = true;
@@ -421,8 +403,6 @@ export class FoodJournalComponent implements OnInit {
   }
 
   selectFood(food: NutritionixSuggestion): void {
-    const headers: HttpHeaders = this.authHeaderService.getAuthHeaders();
-
     this.searchTerm = food.food_name;
     this.suggestions = [];
     this.searching = false;
@@ -430,14 +410,14 @@ export class FoodJournalComponent implements OnInit {
     if ('nix_item_id' in food && food.nix_item_id) {
       // Branded food → fetch detail
       this.nutritionixService
-        .getFoodDetails(food.nix_item_id, headers)
+        .getFoodDetails(food.nix_item_id)
         .subscribe((detail: NutritionixFoodDetail) => {
           this.addFoodFromNutritionix(detail);
         });
     } else {
       // Common food → parse
       this.nutritionixService
-        .parseNutrientsFromQuery(food.food_name, headers)
+        .parseNutrientsFromQuery(food.food_name)
         .subscribe((parsed) => {
           if (parsed.length > 0) {
             this.addFoodFromNutritionix(parsed[0]);

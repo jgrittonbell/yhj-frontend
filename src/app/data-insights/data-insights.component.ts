@@ -5,7 +5,6 @@ import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartDataset, ChartOptions } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-import { AuthHeaderService } from '../auth-header.service';
 import { GlucoseService } from '../services/glucose.service';
 import { MealService } from '../services/meal.service';
 
@@ -37,8 +36,7 @@ export class DataInsightsComponent implements OnInit {
 
   constructor(
     private mealService: MealService,
-    private glucoseService: GlucoseService,
-    private authHeaderService: AuthHeaderService
+    private glucoseService: GlucoseService
   ) {}
 
   // ================================
@@ -101,20 +99,21 @@ export class DataInsightsComponent implements OnInit {
   };
 
   /**
-   * Load glucose readings from API and calculate time in range percentages
+   * Loads glucose readings from the API and computes the
+   * percentage of time spent below, in, and above the target range.
+   * Updates the glucose range bar chart with the results.
    */
   loadGlucoseData(): void {
     console.log(
       `Loading glucose data for last ${this.glucoseRangeDays} days...`
     );
-    const headers = this.authHeaderService.getAuthHeaders();
 
     const now = new Date();
     const startDate = new Date(now);
     startDate.setDate(now.getDate() - this.glucoseRangeDays);
 
     this.glucoseService
-      .getAllReadings(headers)
+      .getAllReadings()
       .subscribe((readings: GlucoseReading[]) => {
         console.log('Total readings received:', readings.length);
 
@@ -232,15 +231,22 @@ export class DataInsightsComponent implements OnInit {
     datasets: [],
   };
 
+  /**
+   * Loads meals from the API, filters them to the last 30 days,
+   * and calculates:
+   * - Macro distribution (% carbs, protein, fat)
+   * - Average daily calorie intake
+   *
+   * Updates both the macro pie chart and calorie bar chart.
+   */
   loadFoodInsights(): void {
     console.log('Loading food insights for last 30 days');
-    const headers = this.authHeaderService.getAuthHeaders();
 
     const now = new Date();
     const startDate = new Date();
     startDate.setDate(now.getDate() - 30);
 
-    this.mealService.getAllMeals(headers).subscribe((meals: MealResponse[]) => {
+    this.mealService.getAllMeals().subscribe((meals: MealResponse[]) => {
       const filteredMeals = meals.filter((meal) => {
         const mealDate = new Date(meal.timeEaten);
         return mealDate >= startDate && mealDate <= now;

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthHeaderService } from '../auth-header.service';
 import { Router, RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartDataset, ChartOptions } from 'chart.js';
@@ -35,7 +34,6 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authHeaderService: AuthHeaderService,
     private mealService: MealService,
     private glucoseService: GlucoseService
   ) {}
@@ -46,8 +44,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadRecentMeals(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.mealService.getAllMeals(headers).subscribe((meals) => {
+    this.mealService.getAllMeals().subscribe((meals) => {
       this.recentMeals = meals
         .sort((a, b) => b.timeEaten.localeCompare(a.timeEaten))
         .slice(0, 5);
@@ -55,8 +52,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadReadings(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.glucoseService.getAllReadings(headers).subscribe((readings) => {
+    this.glucoseService.getAllReadings().subscribe((readings) => {
       this.allReadings = readings.sort((a, b) =>
         b.measurementTime.localeCompare(a.measurementTime)
       );

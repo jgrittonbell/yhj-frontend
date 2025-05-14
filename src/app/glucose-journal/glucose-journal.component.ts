@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { GlucoseReading } from '../interfaces/glucose-reading';
 import { GlucoseService } from '../services/glucose.service';
-import { AuthHeaderService } from '../auth-header.service';
 
 @Component({
   standalone: true,
@@ -34,11 +33,7 @@ export class GlucoseJournalComponent implements OnInit {
   sortColumn: string = 'measurementTime';
   sortDirection: 'asc' | 'desc' = 'desc';
 
-  constructor(
-    private fb: FormBuilder,
-    private glucoseService: GlucoseService,
-    private authHeaderService: AuthHeaderService
-  ) {
+  constructor(private fb: FormBuilder, private glucoseService: GlucoseService) {
     this.glucoseForm = this.fb.group({
       readingValue: [null, [Validators.required, Validators.min(0)]],
       readingTime: [null, Validators.required],
@@ -52,14 +47,19 @@ export class GlucoseJournalComponent implements OnInit {
     this.loadReadings();
   }
 
+  /**
+   * Loads all glucose readings for the current user.
+   */
   loadReadings(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.glucoseService.getAllReadings(headers).subscribe({
+    this.glucoseService.getAllReadings().subscribe({
       next: (readings) => (this.readings = readings),
       error: (err) => console.error('Failed to fetch readings:', err),
     });
   }
 
+  /**
+   * Begins creation of a new glucose reading.
+   */
   startNewReading(): void {
     this.showForm = true;
     this.readingSaved = false;
@@ -68,16 +68,20 @@ export class GlucoseJournalComponent implements OnInit {
     this.glucoseForm.reset();
   }
 
+  /**
+   * Cancels the form and resets state.
+   */
   cancelForm(): void {
     this.showForm = false;
     this.editingReading = null;
     this.glucoseForm.reset();
   }
 
+  /**
+   * Submits the glucose form to either create or update a reading.
+   */
   onSubmit(): void {
     if (this.glucoseForm.valid) {
-      const headers = this.authHeaderService.getAuthHeaders();
-
       // Map frontend fields to backend DTO
       const form = this.glucoseForm.value;
       const readingData: GlucoseReading = {
@@ -90,10 +94,9 @@ export class GlucoseJournalComponent implements OnInit {
       const request$ = this.editingReading
         ? this.glucoseService.updateReading(
             this.editingReading.id!,
-            readingData,
-            headers
+            readingData
           )
-        : this.glucoseService.saveReading(readingData, headers);
+        : this.glucoseService.saveReading(readingData);
 
       request$.subscribe({
         next: () => {
@@ -111,6 +114,11 @@ export class GlucoseJournalComponent implements OnInit {
     }
   }
 
+  /**
+   * Loads a reading into the form for editing.
+   *
+   * @param reading The glucose reading to edit.
+   */
   editReading(reading: GlucoseReading): void {
     this.editingReading = reading;
     this.showForm = true;
@@ -122,11 +130,15 @@ export class GlucoseJournalComponent implements OnInit {
     });
   }
 
+  /**
+   * Deletes a glucose reading by ID after user confirmation.
+   *
+   * @param id The unique ID of the reading to delete.
+   */
   deleteReading(id: number): void {
     if (!confirm('Are you sure you want to delete this reading?')) return;
 
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.glucoseService.deleteReading(id, headers).subscribe({
+    this.glucoseService.deleteReading(id).subscribe({
       next: () => {
         this.readingDeleted = true;
         this.loadReadings();
@@ -136,6 +148,12 @@ export class GlucoseJournalComponent implements OnInit {
     });
   }
 
+  /**
+   * Filters readings by user-entered search text across
+   * notes, glucose level, and measurement time.
+   *
+   * @returns Filtered glucose readings.
+   */
   get filteredReadings(): GlucoseReading[] {
     if (!this.filterText.trim()) {
       return this.readings;
@@ -151,6 +169,12 @@ export class GlucoseJournalComponent implements OnInit {
     );
   }
 
+  /**
+   * Returns a sorted and filtered list of readings,
+   * applying both the current search filter and sort column/direction.
+   *
+   * @returns Filtered and sorted glucose readings.
+   */
   get displayedReadings(): GlucoseReading[] {
     const filtered = this.filterText.trim()
       ? this.readings.filter(
@@ -175,6 +199,11 @@ export class GlucoseJournalComponent implements OnInit {
     });
   }
 
+  /**
+   * Updates the column and direction used to sort readings.
+   *
+   * @param column The name of the column to sort by.
+   */
   setSort(column: string): void {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';

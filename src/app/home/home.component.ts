@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AuthHeaderService } from '../auth-header.service';
 import { UserProfileService } from '../services/user-profile.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { NutritionixService } from '../services/nutritionix.service';
 
 @Component({
   selector: 'app-home',
@@ -21,22 +19,20 @@ export class HomeComponent implements OnInit {
   userFirstName = '';
 
   constructor(
-    private authHeaderService: AuthHeaderService,
     private userProfileService: UserProfileService,
     private router: Router,
-    private authService: AuthService,
-    private nutritionixService: NutritionixService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     const storedMessage = localStorage.getItem('auth_redirect_message');
+
     if (storedMessage) {
       this.message = storedMessage;
       localStorage.removeItem('auth_redirect_message');
     }
 
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.userProfileService.getMyUserProfile(headers).subscribe({
+    this.userProfileService.getMyUserProfile().subscribe({
       next: (user) => {
         this.isLoggedIn = true;
         this.userFirstName = user.first_name;

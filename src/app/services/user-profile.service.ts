@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,14 +10,28 @@ export class UserProfileService {
 
   constructor(private http: HttpClient) {}
 
-  getMyUserProfile(headers: HttpHeaders): Observable<any> {
-    return this.http.get<any>(this.apiUrl, { headers });
+  /**
+   * Retrieves the authenticated user's profile data.
+   * Authorization is handled by the HTTP interceptor.
+   *
+   * @returns An Observable containing the user's profile.
+   */
+  getMyUserProfile(): Observable<any> {
+    return this.http.get<any>(this.apiUrl);
   }
 
-  updateMyUserProfile(
-    body: { first_name: string; last_name: string; email: string },
-    headers: HttpHeaders
-  ): Observable<any> {
-    return this.http.put(this.apiUrl, body, { headers });
+  /**
+   * Updates the authenticated user's profile.
+   * Authorization is handled by the HTTP interceptor.
+   *
+   * @param body An object containing first name, last name, and email.
+   * @returns An Observable indicating the success or failure of the update.
+   */
+  updateMyUserProfile(body: {
+    first_name: string;
+    last_name: string;
+    email: string;
+  }): Observable<any> {
+    return this.http.put(this.apiUrl, body);
   }
 }

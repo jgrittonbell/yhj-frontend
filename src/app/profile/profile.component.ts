@@ -1,16 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpHeaders } from '@angular/common/http';
 import {
   FormBuilder,
   FormsModule,
-  FormArray,
-  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthHeaderService } from '../auth-header.service';
 import { UserProfileService } from '../services/user-profile.service';
 
 @Component({
@@ -21,27 +17,27 @@ import { UserProfileService } from '../services/user-profile.service';
   styleUrl: './profile.component.css',
 })
 export class ProfileComponent implements OnInit {
-  user: any = {}; // placeholder structure for now
-
-  constructor(
-    private authHeaderService: AuthHeaderService,
-    private userProfileService: UserProfileService
-  ) {}
-
+  user: any = {};
   updateSuccess: boolean = false;
   updateError = false;
   errorMessage = '';
 
+  constructor(private userProfileService: UserProfileService) {}
+
+  /**
+   * Lifecycle hook that runs once when the component is initialized.
+   * Loads the user's profile data.
+   */
   ngOnInit(): void {
     this.loadUserProfile();
   }
 
   /**
-   * Loads the current user's profile data from the backend
+   * Fetches the current user's profile from the backend and assigns it to the `user` object.
+   * Errors are logged to the console.
    */
   loadUserProfile(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
-    this.userProfileService.getMyUserProfile(headers).subscribe({
+    this.userProfileService.getMyUserProfile().subscribe({
       next: (data) => {
         console.log('User profile loaded:', data);
         this.user = data;
@@ -52,13 +48,15 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  /**
+   * Sends the updated user profile to the backend.
+   * Shows a success or error message based on the result.
+   */
   updateProfile(): void {
-    const headers = this.authHeaderService.getAuthHeaders();
     const { first_name, last_name, email } = this.user;
-
     const body = { first_name, last_name, email };
 
-    this.userProfileService.updateMyUserProfile(body, headers).subscribe({
+    this.userProfileService.updateMyUserProfile(body).subscribe({
       next: (response) => {
         console.log('Profile updated successfully:', response);
         this.updateSuccess = true;
