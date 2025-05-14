@@ -3,11 +3,13 @@
     <h2 class="card-title">Welcome to YourHealthJournal</h2>
     <p class="card-text">
       YourHealthJournal helps you record your meals and monitor your blood
-      glucose...
+      glucose levels in one place. The goal of this journal is to put all of
+      your data in one place that's accessible to only you. When you have more
+      data, you can make better choices and live happier.
     </p>
 
     <div *ngIf="!isLoggedIn" class="mt-3">
-      <p>Please log in to continue.</p>
+      <h6>Please log in to continue:</h6>
       <button (click)="login()" class="btn btn-primary">
         Login with Cognito
       </button>

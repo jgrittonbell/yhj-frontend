@@ -20,28 +20,29 @@ export class AuthCallbackComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const code = params['code'];
 
-      if (code) {
-        this.http.post<any>('/api/auth/token', { code }).subscribe({
-          next: (tokens) => {
-            console.log('Tokens received:', tokens);
-
-            localStorage.setItem('id_token', tokens.id_token);
-            localStorage.setItem('access_token', tokens.access_token);
-            localStorage.setItem('expires_in', tokens.expires_in);
-
-            //This is a delay to allow for saving the tokens to occur before navigating to the dashboard
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']);
-            }, 50);
-          },
-          error: (err) => {
-            console.error('Token exchange failed:', err);
-            this.router.navigate(['/']);
-          },
-        });
-      } else {
+      if (!code) {
         this.router.navigate(['/']);
+        return;
       }
+
+      this.http.post<any>('/api/auth/token', { code }).subscribe({
+        next: (tokens) => {
+          console.log('Tokens received:', tokens);
+
+          localStorage.setItem('id_token', tokens.id_token);
+          localStorage.setItem('access_token', tokens.access_token);
+
+          // Optional: Convert expires_in to absolute expiration time
+          const expiresAt = Date.now() + tokens.expires_in * 1000;
+          localStorage.setItem('expires_at', expiresAt.toString());
+
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error('Token exchange failed:', err);
+          this.router.navigate(['/']);
+        },
+      });
     });
   }
 }
