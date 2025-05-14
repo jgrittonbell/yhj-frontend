@@ -1,1 +1,55 @@
-<p>profile works!</p>
+<div class="container py-4">
+  <h2 class="text-center">Edit Profile</h2>
+  <h4 class="text-center text-muted mb-4">For account: {{ user.email }}</h4>
+
+  <div *ngIf="updateError" class="alert alert-danger text-center" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="updateSuccess"
+    class="alert alert-success text-center"
+    role="alert"
+  >
+    Profile updated successfully!
+  </div>
+
+  <form (ngSubmit)="updateProfile()" #profileForm="ngForm">
+    <!-- Hidden email input -->
+    <input type="hidden" name="email" [(ngModel)]="user.email" />
+
+    <!-- First Name -->
+    <div class="mb-3">
+      <label for="firstName" class="form-label">First Name</label>
+      <input
+        type="text"
+        id="firstName"
+        name="first_name"
+        class="form-control"
+        [(ngModel)]="user.first_name"
+        required
+      />
+    </div>
+
+    <!-- Last Name -->
+    <div class="mb-3">
+      <label for="lastName" class="form-label">Last Name</label>
+      <input
+        type="text"
+        id="lastName"
+        name="last_name"
+        class="form-control"
+        [(ngModel)]="user.last_name"
+        required
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="profileForm.invalid"
+    >
+      Save Changes
+    </button>
+  </form>
+</div>

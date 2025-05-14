@@ -1,15 +1,28 @@
-<div *ngIf="message" class="alert alert-warning">
-  {{ message }}
+<div class="card shadow-sm text-center" style="max-width: 600px; width: 100%">
+  <div class="card-body">
+    <h2 class="card-title">Welcome to YourHealthJournal</h2>
+    <p class="card-text">
+      YourHealthJournal helps you record your meals and monitor your blood
+      glucose...
+    </p>
+
+    <div *ngIf="!isLoggedIn" class="mt-3">
+      <p>Please log in to continue.</p>
+      <button (click)="login()" class="btn btn-primary">
+        Login with Cognito
+      </button>
+    </div>
+
+    <div *ngIf="isLoggedIn && !isNewUser" class="mt-3">
+      <h6>Welcome back, {{ userFirstName }}!</h6>
+      <p>
+        Visit your
+        <a routerLink="/dashboard" class="link-primary">dashboard</a> to begin
+        tracking.
+      </p>
+      <button class="btn btn-outline-secondary mt-2" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
 </div>
-
-<h1>Welcome to YourHealthJournal</h1>
-<p>
-  YourHealthJournal helps you record your meals and monitor your blood glucose
-  levels in one place. The goal of this journal is to put all of your data in
-  one place that's accessible to only you. When you have more data, you can make
-  better choices and live happier.
-</p>
-
-<p>Please log in to continue.</p>
-
-<button (click)="login()">Login with Cognito</button>
