@@ -44,10 +44,10 @@ export class DashboardComponent implements OnInit {
   }
 
   loadRecentMeals(): void {
-    this.mealService.getAllMeals().subscribe((meals) => {
+    this.mealService.getRecentMeals(2).subscribe((meals) => {
       this.recentMeals = meals
         .sort((a, b) => b.timeEaten.localeCompare(a.timeEaten))
-        .slice(0, 5);
+        .slice(0, 5); // Display only top 5 if more than 5 returned
     });
   }
 

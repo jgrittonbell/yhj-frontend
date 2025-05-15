@@ -83,9 +83,18 @@ export class FoodJournalComponent implements OnInit {
    * Fetches all meals from the API for display in the journal.
    */
   loadMeals(): void {
-    this.mealService.getAllMeals().subscribe({
+    const start = performance.now();
+
+    this.mealService.getRecentMeals(30).subscribe({
       next: (meals: MealResponse[]) => {
+        const end = performance.now();
+        console.log(`Meal load time: ${(end - start).toFixed(2)} ms`);
         console.log('Meals from API:', meals);
+        console.log(`Loaded ${meals.length} meals`);
+        const avgFoods =
+          meals.reduce((sum, meal) => sum + meal.foods.length, 0) /
+          meals.length;
+        console.log(`Avg foods per meal: ${avgFoods.toFixed(2)}`);
         this.meals = meals;
       },
       error: (err) => {

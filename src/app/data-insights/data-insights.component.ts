@@ -246,7 +246,7 @@ export class DataInsightsComponent implements OnInit {
     const startDate = new Date();
     startDate.setDate(now.getDate() - 30);
 
-    this.mealService.getAllMeals().subscribe((meals: MealResponse[]) => {
+    this.mealService.getRecentMeals(30).subscribe((meals: MealResponse[]) => {
       const filteredMeals = meals.filter((meal) => {
         const mealDate = new Date(meal.timeEaten);
         return mealDate >= startDate && mealDate <= now;

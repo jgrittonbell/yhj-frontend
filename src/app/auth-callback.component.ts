@@ -42,7 +42,7 @@ export class AuthCallbackComponent implements OnInit {
           this.authService.startTokenTimers();
 
           // Navigate to dashboard
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['']);
         },
         error: (err) => {
           console.error('Token exchange failed:', err);

@@ -38,4 +38,14 @@ export class MealService {
   deleteMeal(mealId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${mealId}`);
   }
+
+  /**
+   * Fetches meals from the last N days (default is 30).
+   *
+   * @param days - Number of days to look back (e.g., 30)
+   * @returns Observable of recent meals
+   */
+  getRecentMeals(days: number = 30): Observable<any[]> {
+    return this.http.get<any[]>(`/api/meals/recent?days=${days}`);
+  }
 }
